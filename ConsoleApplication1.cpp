@@ -181,6 +181,7 @@ int main()
 
 
     // PUNTOS DE LA GRILLA
+
     std::vector<Punto> puntosGrilla; // Guarda los puntos.
 
 
@@ -216,6 +217,22 @@ int main()
     }
 
 
+    // PUNTOS DE LA LÍNEA
+
+    std::vector<Punto> puntosLinea;            // Guarda las celdas seleccionadas.
+
+
+    // CALCULA LAS CELDAS DE LA LÍNEA CON BRESENHAM
+
+    bresenham(
+        0,                                      // Columna inicial.
+        0,                                      // Fila inicial.
+        numeroColumnas - 1,                     // Columna final.
+        numeroFilas - 1,                        // Fila final.
+        puntosLinea                             // Guarda las celdas.
+    );
+
+
     // CONVIERTE LOS PUNTOS A OPENGL
 
     std::vector<float> vertices;       // Guarda los vértices.
@@ -229,6 +246,57 @@ int main()
         vertices.push_back(x);         // Guarda X.
         vertices.push_back(y);         // Guarda Y.
         vertices.push_back(0.0f);      // Guarda Z.
+    }
+
+
+    // CREA LOS CUADRADOS DE LA LÍNEA
+
+    std::vector<float> verticesLinea;  // Guarda los vértices de los cuadrados.
+
+    for (const Punto& punto : puntosLinea) // Recorre las celdas seleccionadas.
+    {
+        int x0 = punto.x * tamanoCuadrado; // Calcula X inicial del cuadrado.
+        int y0 = punto.y * tamanoCuadrado; // Calcula Y inicial del cuadrado.
+
+        int x1 = x0 + tamanoCuadrado;      // Calcula X final del cuadrado.
+        int y1 = y0 + tamanoCuadrado;      // Calcula Y final del cuadrado.
+
+
+        float izquierda = convertirX(x0);  // Convierte lado izquierdo.
+        float derecha = convertirX(x1);    // Convierte lado derecho.
+
+        float abajo = convertirY(y0);      // Convierte lado inferior.
+        float arriba = convertirY(y1);     // Convierte lado superior.
+
+
+        // PRIMER TRIÁNGULO DEL CUADRADO
+
+        verticesLinea.push_back(izquierda); // Guarda X.
+        verticesLinea.push_back(abajo);    // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
+
+        verticesLinea.push_back(derecha);   // Guarda X.
+        verticesLinea.push_back(abajo);    // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
+
+        verticesLinea.push_back(derecha);   // Guarda X.
+        verticesLinea.push_back(arriba);   // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
+
+
+        // SEGUNDO TRIÁNGULO DEL CUADRADO
+
+        verticesLinea.push_back(izquierda); // Guarda X.
+        verticesLinea.push_back(abajo);    // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
+
+        verticesLinea.push_back(derecha);   // Guarda X.
+        verticesLinea.push_back(arriba);   // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
+
+        verticesLinea.push_back(izquierda); // Guarda X.
+        verticesLinea.push_back(arriba);   // Guarda Y.
+        verticesLinea.push_back(0.0f);     // Guarda Z.
     }
 
 
@@ -266,6 +334,40 @@ int main()
     glEnableVertexAttribArray(0);       // Activa atributo.
 
 
+    // VAO Y VBO DE LOS CUADRADOS PINTADOS
+
+    unsigned int VAOLinea;              // Identificador del VAO de la línea.
+    unsigned int VBOLinea;              // Identificador del VBO de la línea.
+
+    glGenVertexArrays(1, &VAOLinea);    // Crea VAO de la línea.
+    glGenBuffers(1, &VBOLinea);        // Crea VBO de la línea.
+
+    glBindVertexArray(VAOLinea);        // Activa VAO de la línea.
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBOLinea); // Activa VBO de la línea.
+
+    glBufferData(
+        GL_ARRAY_BUFFER,                // Tipo.
+        verticesLinea.size() * sizeof(float), // Tamaño.
+        verticesLinea.data(),           // Datos.
+        GL_STATIC_DRAW                  // Datos estáticos.
+    );
+
+
+    // CONFIGURACIÓN DE LOS VÉRTICES DE LOS CUADRADOS
+
+    glVertexAttribPointer(
+        0,                              // Ubicación.
+        3,                              // X, Y, Z.
+        GL_FLOAT,                       // Tipo.
+        GL_FALSE,                       // Sin normalizar.
+        3 * sizeof(float),              // Tamaño.
+        (void*)0                        // Inicio.
+    );
+
+    glEnableVertexAttribArray(0);       // Activa atributo.
+
+
     glPointSize(1.5f);                  // Tamaño de los puntos.
 
 
@@ -284,13 +386,28 @@ int main()
 
         glUseProgram(shaderProgram);    // Activa shaders.
 
-        glBindVertexArray(VAO);         // Activa VAO.
+
+        // DIBUJA LOS CUADRADOS DE LA LÍNEA
+
+        glBindVertexArray(VAOLinea);    // Activa VAO de los cuadrados.
+
+        glDrawArrays(
+            GL_TRIANGLES,               // Dibuja los cuadrados con triángulos.
+            0,                          // Primer vértice.
+            verticesLinea.size() / 3    // Cantidad de vértices.
+        );
+
+
+        // DIBUJA LA GRILLA
+
+        glBindVertexArray(VAO);         // Activa VAO de la grilla.
 
         glDrawArrays(
             GL_POINTS,                  // Dibuja puntos.
             0,                          // Primer punto.
             vertices.size() / 3         // Cantidad.
         );
+
 
         glfwSwapBuffers(window);        // Actualiza pantalla.
         glfwPollEvents();               // Procesa eventos.
@@ -301,6 +418,10 @@ int main()
 
     glDeleteVertexArrays(1, &VAO);      // Elimina VAO.
     glDeleteBuffers(1, &VBO);           // Elimina VBO.
+
+    glDeleteVertexArrays(1, &VAOLinea); // Elimina VAO de los cuadrados.
+    glDeleteBuffers(1, &VBOLinea);      // Elimina VBO de los cuadrados.
+
     glDeleteProgram(shaderProgram);     // Elimina programa.
 
     glfwDestroyWindow(window);          // Destruye ventana.
