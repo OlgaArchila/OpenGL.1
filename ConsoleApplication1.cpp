@@ -1,19 +1,19 @@
 #include <iostream>                 // Permite mostrar mensajes en consola.
-#include <vector>                   // Permite guardar los puntos de Bresenham.
+#include <vector>                   // Permite guardar los puntos.
 #include <cstdlib>                  // Permite utilizar abs().
 #include <glad/glad.h>              // Carga las funciones de OpenGL.
-#include <GLFW/glfw3.h>             // Permite crear y manejar la ventana.
+#include <GLFW/glfw3.h>             // Permite crear la ventana.
 
 
 // VERTEX SHADER
 const char* vertexShaderSource = R"(
 #version 330 core
 
-layout (location = 0) in vec3 aPos; // Recibe la posición del punto.
+layout (location = 0) in vec3 aPos; // Recibe la posición.
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0); // Define la posición del punto.
+    gl_Position = vec4(aPos, 1.0); // Define la posición.
 }
 )";
 
@@ -22,11 +22,11 @@ void main()
 const char* fragmentShaderSource = R"(
 #version 330 core
 
-out vec4 FragColor; // Guarda el color del punto.
+out vec4 FragColor; // Guarda el color.
 
 void main()
 {
-    FragColor = vec4(1.0f, 0.5f, 0.0f, 1.0f); // Color naranja.
+    FragColor = vec4(0.7f, 0.4f, 1.0f, 1.0f); // Color morado claro.
 }
 )";
 
@@ -40,51 +40,57 @@ struct Punto
 
 
 // ALGORITMO DE BRESENHAM
-void bresenham(int x0, int y0, int x1, int y1, std::vector<Punto>& puntos)
+void bresenham(
+    int x0,                        // X inicial.
+    int y0,                        // Y inicial.
+    int x1,                        // X final.
+    int y1,                        // Y final.
+    std::vector<Punto>& puntos     // Guarda los puntos.
+)
 {
-    int dx = abs(x1 - x0);          // Calcula la distancia horizontal.
-    int dy = abs(y1 - y0);          // Calcula la distancia vertical.
+    int dx = abs(x1 - x0);         // Distancia horizontal.
+    int dy = abs(y1 - y0);         // Distancia vertical.
 
-    int sx = (x0 < x1) ? 1 : -1;    // Define la dirección en X.
-    int sy = (y0 < y1) ? 1 : -1;    // Define la dirección en Y.
+    int sx = (x0 < x1) ? 1 : -1;   // Dirección en X.
+    int sy = (y0 < y1) ? 1 : -1;   // Dirección en Y.
 
-    int error = dx - dy;            // Calcula el error inicial.
+    int error = dx - dy;            // Error inicial.
 
     while (true)
     {
-        puntos.push_back({ x0, y0 }); // Guarda el punto actual.
+        puntos.push_back({ x0, y0 }); // Guarda el punto.
 
-        if (x0 == x1 && y0 == y1)   // Comprueba si llegó al final.
+        if (x0 == x1 && y0 == y1)   // Comprueba el final.
             break;
 
-        int e2 = 2 * error;         // Calcula el doble del error.
+        int e2 = 2 * error;         // Calcula el error.
 
         if (e2 > -dy)
         {
-            error -= dy;            // Corrige el error.
-            x0 += sx;                // Avanza en X.
+            error -= dy;            // Ajusta el error.
+            x0 += sx;               // Avanza en X.
         }
 
         if (e2 < dx)
         {
-            error += dx;            // Corrige el error.
-            y0 += sy;                // Avanza en Y.
+            error += dx;            // Ajusta el error.
+            y0 += sy;               // Avanza en Y.
         }
     }
 }
 
 
-// CONVIERTE X DE PIXELES A OPENGL
+// CONVIERTE X A OPENGL
 float convertirX(int x)
 {
-    return (2.0f * x / 800.0f) - 1.0f; // Convierte X a -1 hasta 1.
+    return (2.0f * x / 800.0f) - 1.0f; // Convierte X.
 }
 
 
-// CONVIERTE Y DE PIXELES A OPENGL
+// CONVIERTE Y A OPENGL
 float convertirY(int y)
 {
-    return (2.0f * y / 600.0f) - 1.0f; // Convierte Y a -1 hasta 1.
+    return (2.0f * y / 600.0f) - 1.0f; // Convierte Y.
 }
 
 
@@ -97,129 +103,128 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Usa Core.
 
     GLFWwindow* window = glfwCreateWindow(
-        800,                         // Ancho de la ventana.
-        600,                         // Alto de la ventana.
-        "OlgaOpenGL",                // Nombre de la ventana.
-        NULL,                        // No usa pantalla completa.
-        NULL                         // No comparte contexto.
+        800,                        // Ancho.
+        600,                        // Alto.
+        "OlgaOpenGL",               // Nombre.
+        NULL,                       // No pantalla completa.
+        NULL                        // No comparte contexto.
     );
 
-    if (window == NULL)              // Comprueba si se creó la ventana.
+    if (window == NULL)             // Comprueba la ventana.
     {
         std::cout << "No se pudo crear la ventana" << std::endl;
-        glfwTerminate();             // Cierra GLFW.
-        return -1;                   // Termina el programa.
+        glfwTerminate();            // Cierra GLFW.
+        return -1;                  // Termina.
     }
 
-    glfwMakeContextCurrent(window);  // Activa la ventana.
+    glfwMakeContextCurrent(window); // Activa la ventana.
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) // Carga GLAD.
     {
         std::cout << "No se pudo inicializar GLAD" << std::endl;
-        glfwTerminate();             // Cierra GLFW.
-        return -1;                   // Termina el programa.
+        glfwTerminate();            // Cierra GLFW.
+        return -1;                  // Termina.
     }
 
-    glViewport(0, 0, 800, 600);     // Define el área de dibujo.
+    glViewport(0, 0, 800, 600);    // Define el área de dibujo.
 
 
     // VERTEX SHADER
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); // Crea shader.
 
     glShaderSource(
-        vertexShader,                // Shader que recibe el código.
-        1,                           // Cantidad de códigos.
-        &vertexShaderSource,         // Código del vertex shader.
-        NULL                         // Sin longitudes específicas.
+        vertexShader,               // Shader.
+        1,                          // Cantidad.
+        &vertexShaderSource,        // Código.
+        NULL                        // Sin longitud.
     );
 
-    glCompileShader(vertexShader);   // Compila el vertex shader.
+    glCompileShader(vertexShader);  // Compila shader.
 
 
     // FRAGMENT SHADER
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); // Crea shader.
 
     glShaderSource(
-        fragmentShader,              // Shader que recibe el código.
-        1,                           // Cantidad de códigos.
-        &fragmentShaderSource,       // Código del fragment shader.
-        NULL                         // Sin longitudes específicas.
+        fragmentShader,             // Shader.
+        1,                          // Cantidad.
+        &fragmentShaderSource,      // Código.
+        NULL                        // Sin longitud.
     );
 
-    glCompileShader(fragmentShader); // Compila el fragment shader.
+    glCompileShader(fragmentShader); // Compila shader.
 
 
     // PROGRAMA DE SHADERS
-    unsigned int shaderProgram = glCreateProgram(); // Crea el programa.
+    unsigned int shaderProgram = glCreateProgram(); // Crea programa.
 
     glAttachShader(shaderProgram, vertexShader);    // Agrega vertex shader.
     glAttachShader(shaderProgram, fragmentShader);  // Agrega fragment shader.
 
     glLinkProgram(shaderProgram);                   // Une los shaders.
 
-    glDeleteShader(vertexShader);                   // Elimina el shader.
-    glDeleteShader(fragmentShader);                 // Elimina el shader.
+    glDeleteShader(vertexShader);                   // Elimina shader.
+    glDeleteShader(fragmentShader);                 // Elimina shader.
 
 
     // CONFIGURACIÓN DE LA GRILLA
 
-    int numeroCuadradosX = 4;       // Número de columnas.
-    int numeroCuadradosY = 3;       // Número de filas.
+    int tamanoCuadrado = 40;        // Tamaño de cada celda.
 
-    int tamanoCuadrado = 200;       // Tamaño de cada cuadrado.
+    int numeroColumnas = 20;        // Cantidad de columnas.
 
-    int anchoGrilla = numeroCuadradosX * tamanoCuadrado; // Ancho total.
-    int altoGrilla = numeroCuadradosY * tamanoCuadrado;  // Alto total.
+    int numeroFilas = 15;           // Cantidad de filas.
 
-    int inicioX = 0;                // Inicio horizontal.
-    int inicioY = 0;                // Inicio vertical.
+    int anchoGrilla = numeroColumnas * tamanoCuadrado; // Ancho total.
+
+    int altoGrilla = numeroFilas * tamanoCuadrado;     // Alto total.
 
 
     // PUNTOS DE LA GRILLA
-    std::vector<Punto> puntosGrilla; // Guarda todos los puntos.
+    std::vector<Punto> puntosGrilla; // Guarda los puntos.
 
 
     // LÍNEAS VERTICALES
 
-    for (int i = 0; i <= numeroCuadradosX; i++) // Recorre las columnas.
+    for (int i = 0; i <= numeroColumnas; i++) // Recorre columnas.
     {
-        int x = inicioX + i * tamanoCuadrado; // Calcula X de la línea.
+        int x = i * tamanoCuadrado;            // Calcula X.
 
         bresenham(
-            x,                          // Punto inicial X.
-            inicioY,                    // Punto inicial Y.
-            x,                          // Punto final X.
-            inicioY + altoGrilla,       // Punto final Y.
-            puntosGrilla                // Guarda los puntos.
+            x,                                  // X inicial.
+            0,                                  // Y inicial.
+            x,                                  // X final.
+            altoGrilla,                         // Y final.
+            puntosGrilla                        // Guarda puntos.
         );
     }
 
 
     // LÍNEAS HORIZONTALES
 
-    for (int i = 0; i <= numeroCuadradosY; i++) // Recorre las filas.
+    for (int i = 0; i <= numeroFilas; i++)    // Recorre filas.
     {
-        int y = inicioY + i * tamanoCuadrado; // Calcula Y de la línea.
+        int y = i * tamanoCuadrado;            // Calcula Y.
 
         bresenham(
-            inicioX,                    // Punto inicial X.
-            y,                          // Punto inicial Y.
-            inicioX + anchoGrilla,      // Punto final X.
-            y,                          // Punto final Y.
-            puntosGrilla                // Guarda los puntos.
+            0,                                  // X inicial.
+            y,                                  // Y inicial.
+            anchoGrilla,                        // X final.
+            y,                                  // Y final.
+            puntosGrilla                        // Guarda puntos.
         );
     }
 
 
-    // VÉRTICES PARA OPENGL
+    // CONVIERTE LOS PUNTOS A OPENGL
 
-    std::vector<float> vertices;      // Guarda las coordenadas OpenGL.
+    std::vector<float> vertices;       // Guarda los vértices.
 
 
     for (const Punto& punto : puntosGrilla) // Recorre los puntos.
     {
-        float x = convertirX(punto.x); // Convierte X a OpenGL.
-        float y = convertirY(punto.y); // Convierte Y a OpenGL.
+        float x = convertirX(punto.x); // Convierte X.
+        float y = convertirY(punto.y); // Convierte Y.
 
         vertices.push_back(x);         // Guarda X.
         vertices.push_back(y);         // Guarda Y.
@@ -227,42 +232,41 @@ int main()
     }
 
 
-    // VAO
-    unsigned int VAO;                 // Identificador del VAO.
+    // VAO Y VBO
 
-    // VBO
-    unsigned int VBO;                 // Identificador del VBO.
+    unsigned int VAO;                  // Identificador del VAO.
+    unsigned int VBO;                  // Identificador del VBO.
 
-    glGenVertexArrays(1, &VAO);       // Crea el VAO.
-    glGenBuffers(1, &VBO);            // Crea el VBO.
+    glGenVertexArrays(1, &VAO);        // Crea VAO.
+    glGenBuffers(1, &VBO);             // Crea VBO.
 
-    glBindVertexArray(VAO);           // Activa el VAO.
+    glBindVertexArray(VAO);            // Activa VAO.
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Activa el VBO.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Activa VBO.
 
     glBufferData(
-        GL_ARRAY_BUFFER,              // Tipo de buffer.
-        vertices.size() * sizeof(float), // Tamaño de los datos.
-        vertices.data(),              // Datos de los vértices.
-        GL_STATIC_DRAW                // Los datos no cambian.
+        GL_ARRAY_BUFFER,               // Tipo.
+        vertices.size() * sizeof(float), // Tamaño.
+        vertices.data(),               // Datos.
+        GL_STATIC_DRAW                 // Datos estáticos.
     );
 
 
     // CONFIGURACIÓN DE LOS VÉRTICES
 
     glVertexAttribPointer(
-        0,                             // Ubicación del atributo.
-        3,                             // X, Y y Z.
-        GL_FLOAT,                      // Tipo de dato.
-        GL_FALSE,                      // No normaliza.
-        3 * sizeof(float),             // Tamaño de cada vértice.
-        (void*)0                       // Inicio de los datos.
+        0,                              // Ubicación.
+        3,                              // X, Y, Z.
+        GL_FLOAT,                       // Tipo.
+        GL_FALSE,                       // Sin normalizar.
+        3 * sizeof(float),              // Tamaño.
+        (void*)0                        // Inicio.
     );
 
-    glEnableVertexAttribArray(0);      // Activa el atributo.
+    glEnableVertexAttribArray(0);       // Activa atributo.
 
 
-    glPointSize(2.0f);                 // Define el tamaño de los puntos.
+    glPointSize(1.5f);                  // Tamaño de los puntos.
 
 
     // BUCLE PRINCIPAL
@@ -270,38 +274,37 @@ int main()
     while (!glfwWindowShouldClose(window)) // Repite hasta cerrar.
     {
         glClearColor(
-            0.12f,                     // Rojo.
-            0.07f,                     // Verde.
-            0.17f,                     // Azul.
-            1.0f                       // Transparencia.
+            0.02f,                      // Rojo.
+            0.05f,                      // Verde.
+            0.10f,                      // Azul.
+            1.0f                        // Opacidad.
         );
 
-        glClear(GL_COLOR_BUFFER_BIT);  // Limpia la pantalla.
+        glClear(GL_COLOR_BUFFER_BIT);   // Limpia pantalla.
 
-        glUseProgram(shaderProgram);   // Activa los shaders.
+        glUseProgram(shaderProgram);    // Activa shaders.
 
-        glBindVertexArray(VAO);        // Activa el VAO.
+        glBindVertexArray(VAO);         // Activa VAO.
 
         glDrawArrays(
-            GL_POINTS,                 // Dibuja los puntos.
-            0,                         // Comienza desde el primer punto.
-            vertices.size() / 3        // Cantidad de puntos.
+            GL_POINTS,                  // Dibuja puntos.
+            0,                          // Primer punto.
+            vertices.size() / 3         // Cantidad.
         );
 
-        glfwSwapBuffers(window);       // Muestra el dibujo.
-        glfwPollEvents();              // Procesa eventos.
+        glfwSwapBuffers(window);        // Actualiza pantalla.
+        glfwPollEvents();               // Procesa eventos.
     }
 
 
     // LIBERA LOS RECURSOS
 
-    glDeleteVertexArrays(1, &VAO);     // Elimina el VAO.
-    glDeleteBuffers(1, &VBO);          // Elimina el VBO.
-    glDeleteProgram(shaderProgram);    // Elimina el programa.
+    glDeleteVertexArrays(1, &VAO);      // Elimina VAO.
+    glDeleteBuffers(1, &VBO);           // Elimina VBO.
+    glDeleteProgram(shaderProgram);     // Elimina programa.
 
-    glfwDestroyWindow(window);         // Destruye la ventana.
-    glfwTerminate();                   // Finaliza GLFW.
+    glfwDestroyWindow(window);          // Destruye ventana.
+    glfwTerminate();                    // Finaliza GLFW.
 
-    return 0;                          // Finaliza correctamente.
+    return 0;                           // Finaliza correctamente.
 }
-
