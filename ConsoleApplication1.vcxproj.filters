@@ -18,7 +18,7 @@
     <ClCompile Include="ConsoleApplication1.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Downloads\programas\OPENGL\src\glad.c">
+    <ClCompile Include="Libraries\src\glad.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
