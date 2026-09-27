@@ -20,12 +20,12 @@ static std::vector<GLuint> g_gridIndices;                // Guarda los índices d
 static int g_gridCols = 80;                              // Cantidad de columnas de la grilla
 static int g_gridRows = 80;                              // Cantidad de filas de la grilla
 
-static GLfloat g_gridColor[4] = {                       // Color de la grilla
-    0.55f, 0.35f, 0.75f, 1.0f                          // Morado claro
+static GLfloat g_gridColor[4] = {                        // Color de la grilla
+    0.55f, 0.35f, 0.75f, 1.0f                           // Morado claro
 };
 
-static GLfloat g_lineColor[4] = {                       // Color de los cuadritos seleccionados por Bresenham
-    1.0f, 0.75f, 0.2f, 1.0f                           // Amarillo para diferenciarlos
+static GLfloat g_lineColor[4] = {                        // Color de los cuadritos seleccionados por Bresenham
+    1.0f, 0.75f, 0.2f, 1.0f                             // Amarillo para diferenciarlos
 };
 
 static int g_line_x0 = 10;                               // Coordenada X inicial de la línea
@@ -33,13 +33,21 @@ static int g_line_y0 = 10;                               // Coordenada Y inicial
 static int g_line_x1 = 70;                               // Coordenada X final de la línea
 static int g_line_y1 = 40;                               // Coordenada Y final de la línea
 
+// ==================== NUEVO: DATOS DEL CÍRCULO ====================
+
+static int g_circleCenterX = 40;                         // Coordenada X del centro del círculo
+static int g_circleCenterY = 40;                         // Coordenada Y del centro del círculo
+static int g_circleRadius = 20;                          // Radio del círculo en cuadritos
+
+// ===================================================================
+
 static GLsizei g_squareIndexCount = 0;                   // Cantidad total de índices de la grilla
 
 
 GLuint CompileShader(GLenum type, const char* source) {  // Compila un shader
     GLuint shader = glCreateShader(type);                // Crea el shader
     glShaderSource(shader, 1, &source, nullptr);         // Envía el código del shader
-    glCompileShader(shader);                              // Compila el shader
+    glCompileShader(shader);                             // Compila el shader
 
     GLint success = 0;                                   // Guarda el resultado de la compilación
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);  // Consulta si compiló correctamente
@@ -56,7 +64,7 @@ GLuint CompileShader(GLenum type, const char* source) {  // Compila un shader
 
 GLuint CreateShaderProgram() {                           // Crea el programa de shaders
 
-    const char* vertexShaderSource =                    // Código del vertex shader
+    const char* vertexShaderSource =                     // Código del vertex shader
         "#version 330 core\n"                             // Indica la versión de GLSL
         "layout(location = 0) in vec3 aPos;\n"            // Recibe la posición del vértice
         "layout(location = 1) in vec4 aColor;\n"          // Recibe el color del vértice
@@ -67,7 +75,7 @@ GLuint CreateShaderProgram() {                           // Crea el programa de 
         "    vertexColor = aColor;\n"                     // Envía el color
         "}\n";                                            // Cierra el shader
 
-    const char* fragmentShaderSource =                   // Código del fragment shader
+    const char* fragmentShaderSource =                    // Código del fragment shader
         "#version 330 core\n"                             // Indica la versión de GLSL
         "in vec4 vertexColor;\n"                          // Recibe el color
         "out vec4 FragColor;\n"                           // Define el color final
@@ -254,164 +262,261 @@ static void PaintLineBresenham(                          // Pinta los cuadritos 
 
         for (size_t i = 0; i < 4; ++i) {                 // Recorre los cuatro vértices
 
-            verts[base + i].color[0] = color[0];          // Cambia el componente rojo
-            verts[base + i].color[1] = color[1];          // Cambia el componente verde
-            verts[base + i].color[2] = color[2];          // Cambia el componente azul
-            verts[base + i].color[3] = color[3];          // Cambia la transparencia
+            verts[base + i].color[0] = color[0];         // Cambia el componente rojo
+            verts[base + i].color[1] = color[1];         // Cambia el componente verde
+            verts[base + i].color[2] = color[2];         // Cambia el componente azul
+            verts[base + i].color[3] = color[3];         // Cambia la transparencia
         }
         };
 
-    int dx = std::abs(x1 - x0);                           // Calcula la distancia horizontal
+    int dx = std::abs(x1 - x0);                          // Calcula la distancia horizontal
 
-    int sx = x0 < x1 ? 1 : -1;                            // Define la dirección de X
+    int sx = x0 < x1 ? 1 : -1;                           // Define la dirección de X
 
-    int dy = -std::abs(y1 - y0);                          // Calcula la distancia vertical
+    int dy = -std::abs(y1 - y0);                         // Calcula la distancia vertical
 
-    int sy = y0 < y1 ? 1 : -1;                            // Define la dirección de Y
+    int sy = y0 < y1 ? 1 : -1;                           // Define la dirección de Y
 
-    int err = dx + dy;                                    // Calcula el error inicial
+    int err = dx + dy;                                   // Calcula el error inicial
 
-    while (true) {                                        // Repite hasta llegar al punto final
+    while (true) {                                       // Repite hasta llegar al punto final
 
-        setCellColor(x0, y0);                             // Pinta el cuadrito actual
+        setCellColor(x0, y0);                            // Pinta el cuadrito actual
 
-        if (x0 == x1 && y0 == y1) break;                 // Termina cuando llega al punto final
+        if (x0 == x1 && y0 == y1) break;                // Termina cuando llega al punto final
 
-        int e2 = 2 * err;                                 // Calcula el doble del error
+        int e2 = 2 * err;                                // Calcula el doble del error
 
-        if (e2 >= dy) {                                   // Comprueba si debe avanzar en X
+        if (e2 >= dy) {                                  // Comprueba si debe avanzar en X
 
-            err += dy;                                    // Actualiza el error
+            err += dy;                                   // Actualiza el error
 
-            x0 += sx;                                     // Avanza en X
+            x0 += sx;                                    // Avanza en X
         }
 
-        if (e2 <= dx) {                                   // Comprueba si debe avanzar en Y
+        if (e2 <= dx) {                                  // Comprueba si debe avanzar en Y
 
-            err += dx;                                    // Actualiza el error
+            err += dx;                                   // Actualiza el error
 
-            y0 += sy;                                     // Avanza en Y
+            y0 += sy;                                    // Avanza en Y
         }
     }
 }
 
 
+// ==================== NUEVO: CÍRCULO DE BRESENHAM ====================
+
+static void PaintCircleBresenham(                       // Pinta un círculo usando Bresenham
+    std::vector<VertexSquare>& verts,                    // Vértices de la grilla
+    int cols,                                             // Número de columnas
+    int rows,                                             // Número de filas
+    int centerX,                                          // Coordenada X del centro
+    int centerY,                                          // Coordenada Y del centro
+    int radius,                                           // Radio del círculo
+    const GLfloat color[4])                              // Color del círculo
+{
+    if (radius <= 0) return;                              // No hace nada si el radio no es válido
+
+    auto setCellColor = [&](int cx, int cy) {             // Función para pintar una celda
+
+        if (cx < 0 || cx >= cols || cy < 0 || cy >= rows) return; // Evita salir de la grilla
+
+        size_t cellIndex = static_cast<size_t>(cy) * cols + static_cast<size_t>(cx); // Calcula la celda
+
+        size_t base = cellIndex * 4;                      // Cada celda tiene cuatro vértices
+
+        for (size_t i = 0; i < 4; ++i) {                  // Recorre los cuatro vértices
+
+            verts[base + i].color[0] = color[0];          // Cambia el rojo
+
+            verts[base + i].color[1] = color[1];          // Cambia el verde
+
+            verts[base + i].color[2] = color[2];          // Cambia el azul
+
+            verts[base + i].color[3] = color[3];          // Cambia la transparencia
+        }
+        };
+
+    int x = 0;                                            // Empieza desde X = 0
+    int y = radius;                                       // Empieza arriba del círculo
+
+    int d = 1 - radius;                                   // Calcula el error inicial de Bresenham
+
+    while (x <= y) {                                     // Continúa mientras no se crucen X y Y
+
+        setCellColor(centerX + x, centerY + y);           // Punto 1 de la simetría
+
+        setCellColor(centerX - x, centerY + y);           // Punto 2 de la simetría
+
+        setCellColor(centerX + x, centerY - y);           // Punto 3 de la simetría
+
+        setCellColor(centerX - x, centerY - y);           // Punto 4 de la simetría
+
+        setCellColor(centerX + y, centerY + x);           // Punto 5 de la simetría
+
+        setCellColor(centerX - y, centerY + x);           // Punto 6 de la simetría
+
+        setCellColor(centerX + y, centerY - x);           // Punto 7 de la simetría
+
+        setCellColor(centerX - y, centerY - x);           // Punto 8 de la simetría
+
+        if (d < 0) {                                      // Comprueba si el siguiente punto está dentro
+
+            d += 2 * x + 3;                               // Actualiza el error
+
+        }
+        else {                                            // Si el siguiente punto necesita bajar en Y
+
+            d += 2 * (x - y) + 5;                         // Actualiza el error
+
+            --y;                                          // Disminuye Y
+        }
+
+        ++x;                                               // Aumenta X
+    }
+}
+
+
+// ===================================================================
+
+
 int main() {                                               // Función principal del programa
 
-    if (!glfwInit()) {                                      // Inicializa GLFW
+    if (!glfwInit()) {                                     // Inicializa GLFW
 
         std::cerr << "Error al iniciar GLFW" << std::endl; // Muestra el error
 
-        return -1;                                         // Termina el programa
+        return -1;                                        // Termina el programa
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);         // Solicita OpenGL versión 3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);        // Solicita OpenGL versión 3
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);         // Solicita OpenGL versión 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);        // Solicita OpenGL versión 3.3
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Usa OpenGL Core Profile
 
     GLFWwindow* window = glfwCreateWindow(                // Crea la ventana
 
-        800,                                                // Ancho de la ventana
+        800,                                               // Ancho de la ventana
 
-        600,                                                // Alto de la ventana
+        600,                                               // Alto de la ventana
 
-        "Grilla Bresenham",                                // Nombre de la ventana
+        "Grilla Bresenham",                               // Nombre de la ventana
 
-        nullptr,                                            // No usa pantalla completa
+        nullptr,                                           // No usa pantalla completa
 
-        nullptr                                             // No comparte contexto
+        nullptr                                            // No comparte contexto
     );
 
-    if (window == nullptr) {                                // Comprueba si la ventana se creó
+    if (window == nullptr) {                               // Comprueba si la ventana se creó
 
         std::cerr << "Error creando la ventana" << std::endl; // Muestra el error
 
-        glfwTerminate();                                    // Cierra GLFW
+        glfwTerminate();                                   // Cierra GLFW
 
-        return -1;                                          // Termina el programa
+        return -1;                                         // Termina el programa
     }
 
-    glfwMakeContextCurrent(window);                         // Hace actual el contexto OpenGL
+    glfwMakeContextCurrent(window);                        // Hace actual el contexto OpenGL
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { // Carga las funciones de OpenGL
 
-        std::cerr << "Error cargando GLAD" << std::endl;    // Muestra el error
+        std::cerr << "Error cargando GLAD" << std::endl;   // Muestra el error
 
-        glfwDestroyWindow(window);                          // Destruye la ventana
+        glfwDestroyWindow(window);                         // Destruye la ventana
 
-        glfwTerminate();                                    // Cierra GLFW
+        glfwTerminate();                                   // Cierra GLFW
 
-        return -1;                                          // Termina el programa
+        return -1;                                         // Termina el programa
     }
 
-    glViewport(0, 0, 800, 600);                            // Define el área de dibujo
+    glViewport(0, 0, 800, 600);                           // Define el área de dibujo
 
-    GLuint shaderProgram = CreateShaderProgram();           // Crea el programa de shaders
+    GLuint shaderProgram = CreateShaderProgram();          // Crea el programa de shaders
 
-    CreateGridSquares(                                      // Crea la grilla
+    CreateGridSquares(                                     // Crea la grilla
 
-        g_gridVerts,                                        // Vector de vértices
+        g_gridVerts,                                       // Vector de vértices
 
-        g_gridIndices,                                      // Vector de índices
+        g_gridIndices,                                     // Vector de índices
 
-        g_gridCols,                                         // Número de columnas
+        g_gridCols,                                        // Número de columnas
 
-        g_gridRows,                                         // Número de filas
+        g_gridRows,                                        // Número de filas
 
-        g_gridColor                                         // Color de la grilla
+        g_gridColor                                        // Color de la grilla
     );
 
-    PaintLineBresenham(                                     // Aplica el algoritmo de Bresenham
+    PaintLineBresenham(                                    // Aplica el algoritmo de Bresenham a la línea
 
-        g_gridVerts,                                        // Vértices de la grilla
+        g_gridVerts,                                       // Vértices de la grilla
 
-        g_gridCols,                                         // Número de columnas
+        g_gridCols,                                        // Número de columnas
 
-        g_gridRows,                                         // Número de filas
+        g_gridRows,                                        // Número de filas
 
-        g_line_x0,                                          // X inicial
+        g_line_x0,                                         // X inicial
 
-        g_line_y0,                                          // Y inicial
+        g_line_y0,                                         // Y inicial
 
-        g_line_x1,                                          // X final
+        g_line_x1,                                         // X final
 
-        g_line_y1,                                          // Y final
+        g_line_y1,                                         // Y final
 
-        g_lineColor                                         // Color de la línea
+        g_lineColor                                        // Color de la línea
     );
+
+    // ==================== NUEVO: PINTAR CÍRCULO ====================
+
+    PaintCircleBresenham(                                  // Aplica Bresenham para formar el círculo
+
+        g_gridVerts,                                       // Vértices de la grilla
+
+        g_gridCols,                                        // Número de columnas
+
+        g_gridRows,                                        // Número de filas
+
+        g_circleCenterX,                                   // Centro X del círculo
+
+        g_circleCenterY,                                   // Centro Y del círculo
+
+        g_circleRadius,                                    // Radio del círculo
+
+        g_lineColor                                        // Usa el mismo color de la línea
+    );
+
+    // ================================================================
 
     g_squareIndexCount = static_cast<GLsizei>(g_gridIndices.size()); // Guarda el número de índices
 
-    CreateSquareVAO(                                        // Crea los buffers de la grilla
+    CreateSquareVAO(                                       // Crea los buffers de la grilla
 
-        g_VAO_sq,                                           // VAO
+        g_VAO_sq,                                          // VAO
 
-        g_VBO_sq,                                           // VBO
+        g_VBO_sq,                                          // VBO
 
-        g_EBO_sq,                                           // EBO
+        g_EBO_sq,                                          // EBO
 
-        g_gridVerts.data(),                                 // Datos de vértices
+        g_gridVerts.data(),                                // Datos de vértices
 
-        g_gridVerts.size(),                                 // Cantidad de vértices
+        g_gridVerts.size(),                                // Cantidad de vértices
 
-        g_gridIndices.data(),                               // Datos de índices
+        g_gridIndices.data(),                              // Datos de índices
 
-        g_gridIndices.size()                                // Cantidad de índices
+        g_gridIndices.size()                               // Cantidad de índices
     );
 
-    glClearColor(0.08f, 0.08f, 0.08f, 1.0f);              // Define el color del fondo
+    glClearColor(0.08f, 0.08f, 0.08f, 1.0f);             // Define el color del fondo
 
-    while (!glfwWindowShouldClose(window)) {                // Comienza el ciclo de renderizado
+    while (!glfwWindowShouldClose(window)) {               // Comienza el ciclo de renderizado
 
-        glClear(GL_COLOR_BUFFER_BIT);                        // Limpia la pantalla
+        glClear(GL_COLOR_BUFFER_BIT);                       // Limpia la pantalla
 
-        glUseProgram(shaderProgram);                        // Activa el programa de shaders
+        glUseProgram(shaderProgram);                       // Activa el programa de shaders
 
-        glBindVertexArray(g_VAO_sq);                        // Activa la grilla
+        glBindVertexArray(g_VAO_sq);                       // Activa la grilla
 
-        glDrawElements(                                      // Dibuja la grilla
+        glDrawElements(                                     // Dibuja la grilla
 
             GL_TRIANGLES,                                   // Dibuja usando triángulos
 
@@ -422,22 +527,22 @@ int main() {                                               // Función principal 
             nullptr                                         // Empieza desde el primer índice
         );
 
-        glfwSwapBuffers(window);                             // Muestra el resultado
+        glfwSwapBuffers(window);                            // Muestra el resultado
 
-        glfwPollEvents();                                    // Procesa eventos de la ventana
+        glfwPollEvents();                                   // Procesa eventos de la ventana
     }
 
-    glDeleteVertexArrays(1, &g_VAO_sq);                     // Elimina el VAO
+    glDeleteVertexArrays(1, &g_VAO_sq);                    // Elimina el VAO
 
-    glDeleteBuffers(1, &g_VBO_sq);                          // Elimina el VBO
+    glDeleteBuffers(1, &g_VBO_sq);                         // Elimina el VBO
 
-    glDeleteBuffers(1, &g_EBO_sq);                          // Elimina el EBO
+    glDeleteBuffers(1, &g_EBO_sq);                         // Elimina el EBO
 
-    glDeleteProgram(shaderProgram);                         // Elimina el programa de shaders
+    glDeleteProgram(shaderProgram);                        // Elimina el programa de shaders
 
-    glfwDestroyWindow(window);                              // Destruye la ventana
+    glfwDestroyWindow(window);                             // Destruye la ventana
 
-    glfwTerminate();                                        // Cierra GLFW
+    glfwTerminate();                                       // Cierra GLFW
 
-    return 0;                                                // Termina correctamente
+    return 0;                                               // Termina correctamente
 }
