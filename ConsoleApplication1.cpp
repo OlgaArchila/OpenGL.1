@@ -8,7 +8,9 @@
 #include <cstdlib>                                       // Permite usar std::abs
 #include <glad/glad.h>                                   // Carga las funciones modernas de OpenGL
 #include <GLFW/glfw3.h>                                  // Permite crear la ventana y manejar GLFW
-
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 // ========================================================
 // ESTRUCTURA DE LOS CUADRITOS
