@@ -644,7 +644,7 @@ int main() {                                                // Punto de entrada 
     g_shaderProgram = CreateShaderProgram();                // Compila y enlaza los shaders.
     CreateGridBuffers();                                    // Crea los buffers de OpenGL.
 
-    glClearColor(0.12f, 0.12f, 0.14f, 1.0f);               // Define el color que rodea al lienzo.
+    glClearColor(0.85f, 0.85f, 0.85f, 1.0f);               // Define el color que rodea al lienzo.
 
     while (!glfwWindowShouldClose(window)) {                // Bucle principal del programa.
         glfwPollEvents();                                   // Procesa eventos de teclado y mouse.
@@ -677,7 +677,7 @@ int main() {                                                // Punto de entrada 
                 SaveUndo();                                 // Guarda el lienzo antes del relleno.
                 FloodFill(mouseCell.x, mouseCell.y, g_drawColor); // Rellena la region seleccionada.
             }
-            else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) { // Detecta el inicio de un trazo.
+             else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) { // Detecta el inicio de un trazo.
                 SaveUndo();                                 // Guarda el estado antes de dibujar.
                 g_dragging = true;                          // Activa el modo de arrastre.
                 g_start = mouseCell;                        // Guarda el punto inicial.
