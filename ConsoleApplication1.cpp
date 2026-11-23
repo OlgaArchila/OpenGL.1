@@ -1,24 +1,5 @@
 // ================================================================
-// MI PAINT - OPENGL + GLFW + GLAD + DEAR IMGUI
-// ================================================================
-//
-// IDEA GENERAL:
-// - El lienzo se representa mediante una grilla de 80 x 80 celdas.
-// - Cada celda guarda un color RGBA.
-// - OpenGL dibuja las celdas mediante triangulos.
-// - Dear ImGui crea el panel de herramientas y los controles.
-// - El mouse permite dibujar directamente sobre el lienzo.
-// - Bresenham se utiliza para trazar lineas y circulos con coordenadas enteras.
-// - Ctrl + Z permite recuperar el estado anterior del lienzo.
-// - Las rotaciones se aplican a los puntos de la ultima figura dibujada.
-//
-// IMPORTANTE:
-// Este archivo supone que GLFW, GLAD y Dear ImGui ya estan configurados
-// y enlazados correctamente en el proyecto de Visual Studio.
-//
-// ================================================================
-
-
+// MI PAINT - OPENGL + GLFW + GLAD + DEAR IMGUI OLGA ARCHILA
 // ================================================================
 // 1. LIBRERIAS
 // ================================================================
@@ -116,8 +97,7 @@ static const char* g_toolNames[] = { // Nombres que aparecen en la interfaz.
 static bool g_dragging = false;     // Indica si el usuario mantiene presionado el mouse.
 static Punto g_start = { 0, 0 };    // Guarda el punto inicial de una figura.
 static Punto g_current = { 0, 0 };  // Guarda la posicion actual del mouse.
-static Punto g_last = { -1, -1 };  // Evita pintar varias veces la misma celda consecutiva.
-
+static Punto g_last = { -1, -1 };  // Evita pint    
 static std::vector<Punto> g_polyPoints; // Guarda los puntos de una forma libre.
 static std::vector<Punto> g_lastFigure; // Guarda los puntos de la ultima figura para rotarla.
 
@@ -585,7 +565,7 @@ bool MouseToGrid(GLFWwindow* window, int canvasX, int canvasY, int canvasSize, P
     int fbH = 1;                                             // Guarda el alto real del framebuffer.
     glfwGetFramebufferSize(window, &fbW, &fbH);             // Obtiene las dimensiones del framebuffer.
 
-    float scaleX = static_cast<float>(fbW) / windowW;       // Calcula la escala horizontal.
+    float scaleX = static_cast<float>(fbW) / windowW;       // Cal  cula la escala horizontal.
     float scaleY = static_cast<float>(fbH) / windowH;       // Calcula la escala vertical.
     float px = static_cast<float>(mouseX) * scaleX;         // Convierte el mouse a pixeles reales.
     float py = static_cast<float>(mouseY) * scaleY;         // Convierte el mouse a pixeles reales.
@@ -616,7 +596,7 @@ int main() {                                                // Punto de entrada 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);          // Solicita OpenGL 3.3.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Solicita Core Profile.
 
-    GLFWwindow* window = glfwCreateWindow(1100, 800, "Mi Paint - OpenGL", nullptr, nullptr); // Crea la ventana.
+    GLFWwindow* window = glfwCreateWindow(1100, 800, "Mi Paint - OpenGL- OLGA LUCIA GUACANEME ARCHILA", nullptr, nullptr); // Crea la ventana.
     if (!window) {                                          // Comprueba si se creo.
         std::cerr << "No se pudo crear la ventana." << std::endl; // Muestra el error.
         glfwTerminate();                                    // Cierra GLFW.
