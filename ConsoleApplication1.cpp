@@ -540,6 +540,7 @@ void DrawInterface(GLFWwindow* window) {                    // Construye el pane
     ImGui::TextWrapped("Uso: selecciona una herramienta y dibuja sobre el lienzo con el mouse."); // Explica el uso.
     ImGui::TextWrapped("Para el balde, haz clic dentro de una zona cerrada."); // Explica el relleno.
     ImGui::TextWrapped("Las figuras geometricas se crean arrastrando desde el inicio hasta el final."); // Explica el arrastre.
+    ImGui::TextWrapped("OLGA LUCIA GUACANEME ARCHILA - 6014476");
 
     if (ImGui::Button("Salir", ImVec2(-1, 0)))               // Crea el boton para cerrar.
         glfwSetWindowShouldClose(window, GLFW_TRUE);         // Solicita cerrar la ventana.
@@ -596,7 +597,7 @@ int main() {                                                // Punto de entrada 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);          // Solicita OpenGL 3.3.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Solicita Core Profile.
 
-    GLFWwindow* window = glfwCreateWindow(1100, 800, "Mi Paint - OpenGL- OLGA LUCIA GUACANEME ARCHILA", nullptr, nullptr); // Crea la ventana.
+    GLFWwindow* window = glfwCreateWindow(1100, 800, "La primera pincelada – My Paint - ", nullptr, nullptr); // Crea la ventana.
     if (!window) {                                          // Comprueba si se creo.
         std::cerr << "No se pudo crear la ventana." << std::endl; // Muestra el error.
         glfwTerminate();                                    // Cierra GLFW.
